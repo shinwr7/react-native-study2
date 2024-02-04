@@ -1,4 +1,4 @@
-import { StatusBar } from "expo-status-bar";
+import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
   Text,
@@ -9,9 +9,9 @@ import {
   Pressable,
   TextInput,
   ScrollView,
-} from "react-native";
-import { theme } from "./color";
-import { useState } from "react";
+} from 'react-native';
+import { theme } from './color';
+import { useState } from 'react';
 
 // Pressable 은 좀 더 세심한 터치 범위 조정이 가능하도록 함
 // TextInput 안에 keyboardType props 설정 가능
@@ -22,7 +22,7 @@ import { useState } from "react";
 
 export default function App() {
   const [working, setWorking] = useState(true);
-  const [text, setText] = useState("");
+  const [text, setText] = useState('');
   const [toDos, setToDos] = useState({});
   const onChangeText = (payload) => setText(payload);
   const travel = () => setWorking(false);
@@ -34,11 +34,12 @@ export default function App() {
     // const newToDos = Object.assign({}, toDos, {
     //   [Date.now()]: { text, work: working },
     // });
-    const newToDos = { ...toDos, [Date.now()]: { text, work: working } };
+    const newToDos = { ...toDos, [Date.now()]: { text, working } };
     setToDos(newToDos);
     // save to do
-    setText("");
+    setText('');
   };
+  console.log('toDos ===========', toDos);
 
   return (
     <View style={styles.container}>
@@ -48,7 +49,7 @@ export default function App() {
           <Text
             style={{
               ...styles.btnText,
-              color: working ? "white" : theme.grey,
+              color: working ? 'white' : theme.grey,
             }}
           >
             Work
@@ -62,7 +63,7 @@ export default function App() {
           <Text
             style={{
               ...styles.btnText,
-              color: working ? theme.grey : "white",
+              color: working ? theme.grey : 'white',
             }}
           >
             Travel
@@ -74,15 +75,17 @@ export default function App() {
           returnKeyType="done"
           onSubmitEditing={addTodo}
           style={styles.input}
-          placeholder={working ? "Add a To Do" : "Where do you wanna go?"}
+          placeholder={working ? 'Add a To Do' : 'Where do you wanna go?'}
           onChangeText={onChangeText}
         ></TextInput>
         <ScrollView>
-          {Object.keys(toDos).map((key) => (
-            <View style={styles.toDo} key={key}>
-              <Text style={styles.todoText}>{toDos[key].text}</Text>
-            </View>
-          ))}
+          {Object.keys(toDos).map((key) =>
+            toDos[key].working === working ? (
+              <View style={styles.toDo} key={key}>
+                <Text style={styles.todoText}>{toDos[key].text}</Text>
+              </View>
+            ) : null
+          )}
         </ScrollView>
       </View>
     </View>
@@ -97,17 +100,17 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    justifyContent: "space-between",
-    flexDirection: "row",
+    justifyContent: 'space-between',
+    flexDirection: 'row',
     marginTop: 100,
   },
   btnText: {
     fontSize: 44,
-    fontWeight: "600",
-    color: "white",
+    fontWeight: '600',
+    color: 'white',
   },
   input: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 30,
@@ -115,7 +118,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   toDo: {
-    color: "white",
+    color: 'white',
     marginTop: 15,
     marginBottom: 10,
     paddingVertical: 15,
@@ -124,7 +127,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.todoBg,
   },
   todoText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
   },
 });

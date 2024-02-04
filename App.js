@@ -1,4 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyleSheet,
   Text,
@@ -9,9 +10,10 @@ import {
   Pressable,
   TextInput,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { theme } from './color';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Pressable 은 좀 더 세심한 터치 범위 조정이 가능하도록 함
 // TextInput 안에 keyboardType props 설정 가능
@@ -20,14 +22,48 @@ import { useState } from 'react';
 //                multiline 설정 가능
 //                autoCapitalize 대분자 자동 셋
 
+const STORAGE_KEY = '@toDos';
+
 export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState('');
   const [toDos, setToDos] = useState({});
+  useEffect(() => {
+    loadTodos();
+  }, []);
   const onChangeText = (payload) => setText(payload);
   const travel = () => setWorking(false);
   const work = () => setWorking(true);
-  const addTodo = () => {
+
+  const saveTodos = async (toSave) => {
+    const s = JSON.stringify(toSave);
+    await AsyncStorage.setItem(STORAGE_KEY, s);
+  };
+
+  const loadTodos = async () => {
+    const s = await AsyncStorage.getItem(STORAGE_KEY);
+    console.log(JSON.parse(s));
+    setToDos(JSON.parse(s));
+  };
+
+  const delTodos = async (key) => {
+    Alert.alert('Delete To Do', 'Are you sure?', [
+      { text: 'Cancel' },
+      {
+        text: "I'm Sure",
+        style: 'destructive',
+        onPress: async () => {
+          const newToDos = { ...toDos };
+          delete newToDos[key];
+          setToDos(newToDos);
+          await saveTodos(newToDos);
+        },
+      },
+    ]);
+    return;
+  };
+
+  const addTodo = async () => {
     if (!text) {
       return;
     }
@@ -36,10 +72,10 @@ export default function App() {
     // });
     const newToDos = { ...toDos, [Date.now()]: { text, working } };
     setToDos(newToDos);
+    await saveTodos(newToDos);
     // save to do
     setText('');
   };
-  console.log('toDos ===========', toDos);
 
   return (
     <View style={styles.container}>
@@ -83,6 +119,9 @@ export default function App() {
             toDos[key].working === working ? (
               <View style={styles.toDo} key={key}>
                 <Text style={styles.todoText}>{toDos[key].text}</Text>
+                <TouchableOpacity onPress={() => delTodos(key)}>
+                  <Text>❌</Text>
+                </TouchableOpacity>
               </View>
             ) : null
           )}
@@ -125,6 +164,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     borderRadius: 15,
     backgroundColor: theme.todoBg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   todoText: {
     color: 'white',

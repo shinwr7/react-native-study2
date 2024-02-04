@@ -30,10 +30,28 @@ export default function App() {
   const [toDos, setToDos] = useState({});
   useEffect(() => {
     loadTodos();
+    loadLastView();
+    console.log('working =============', working);
   }, []);
   const onChangeText = (payload) => setText(payload);
-  const travel = () => setWorking(false);
-  const work = () => setWorking(true);
+  const travel = () => {
+    setWorking(false);
+    saveLastView(false);
+  };
+  const work = () => {
+    setWorking(true);
+    saveLastView(true);
+  };
+
+  const loadLastView = async () => {
+    const view = JSON.parse(await AsyncStorage.getItem('lastView'));
+    setWorking(view);
+  };
+
+  const saveLastView = async (bool) => {
+    console.log('JSON.stringify(bool) ================', JSON.stringify(bool));
+    await AsyncStorage.setItem('lastView', JSON.stringify(bool));
+  };
 
   const saveTodos = async (toSave) => {
     const s = JSON.stringify(toSave);
@@ -42,7 +60,7 @@ export default function App() {
 
   const loadTodos = async () => {
     const s = await AsyncStorage.getItem(STORAGE_KEY);
-    console.log(JSON.parse(s));
+
     setToDos(JSON.parse(s));
   };
 

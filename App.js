@@ -14,7 +14,8 @@ import {
 } from 'react-native';
 import { theme } from './color';
 import { useEffect, useState } from 'react';
-
+import Modall from './Modal';
+import TextModal from './Modal';
 // Pressable 은 좀 더 세심한 터치 범위 조정이 가능하도록 함
 // TextInput 안에 keyboardType props 설정 가능
 //                returnKeyTypes props 는? 엔더키에 들어가는 문구 바꿀수있음 ㅇㅇ
@@ -27,11 +28,13 @@ const STORAGE_KEY = '@toDos';
 export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState('');
+  const [isCompleted, setIsCompleted] = useState(false);
   const [toDos, setToDos] = useState({});
+  const [open, setOpen] = useState(false);
+
   useEffect(() => {
     loadTodos();
     loadLastView();
-    console.log('working =============', working);
   }, []);
   const onChangeText = (payload) => setText(payload);
   const travel = () => {
@@ -60,8 +63,26 @@ export default function App() {
 
   const loadTodos = async () => {
     const s = await AsyncStorage.getItem(STORAGE_KEY);
-
     setToDos(JSON.parse(s));
+  };
+
+  const doneTodos = async (key) => {
+    Alert.alert('Done', 'Are you sure?', [
+      { text: 'Cancel' },
+      {
+        text: "I'm Sure",
+        style: 'default',
+        onPress: async () => {
+          const completedTodos = { ...toDos };
+          completedTodos[key].isCompleted = true;
+
+          const newTodos = Object.assign(toDos, completedTodos);
+          await saveTodos(newTodos);
+          await loadTodos();
+        },
+      },
+    ]);
+    return;
   };
 
   const delTodos = async (key) => {
@@ -88,7 +109,7 @@ export default function App() {
     // const newToDos = Object.assign({}, toDos, {
     //   [Date.now()]: { text, work: working },
     // });
-    const newToDos = { ...toDos, [Date.now()]: { text, working } };
+    const newToDos = { ...toDos, [Date.now()]: { text, working, isCompleted } };
     setToDos(newToDos);
     await saveTodos(newToDos);
     // save to do
@@ -136,7 +157,26 @@ export default function App() {
           {Object.keys(toDos).map((key) =>
             toDos[key].working === working ? (
               <View style={styles.toDo} key={key}>
-                <Text style={styles.todoText}>{toDos[key].text}</Text>
+                <Text
+                  style={
+                    toDos[key].isCompleted
+                      ? styles.todoDoneText
+                      : styles.todoText
+                  }
+                >
+                  {toDos[key].text}
+                </Text>
+                <TouchableOpacity onPress={() => doneTodos(key)}>
+                  <Text>✅</Text>
+                </TouchableOpacity>
+                <TextModal
+                  open={open}
+                  toDos={toDos}
+                  setToDos={setToDos}
+                  saveTodos={saveTodos}
+                  loadTodos={loadTodos}
+                  itKey={key}
+                />
                 <TouchableOpacity onPress={() => delTodos(key)}>
                   <Text>❌</Text>
                 </TouchableOpacity>
@@ -189,5 +229,8 @@ const styles = StyleSheet.create({
   todoText: {
     color: 'white',
     fontSize: 16,
+  },
+  todoDoneText: {
+    textDecorationLine: 'line-through',
   },
 });

@@ -23,7 +23,7 @@ const TextModal = ({ toDos, setToDos, saveTodos, loadTodos, itKey }) => {
         style: 'default',
         onPress: async () => {
           const editedTodos = { ...toDos };
-          console.log('editedTodos =================', editedTodos);
+
           editedTodos[itKey].text = modalText;
 
           const newTodos = Object.assign(toDos, editedTodos);

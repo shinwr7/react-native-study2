@@ -106,9 +106,6 @@ export default function App() {
     if (!text) {
       return;
     }
-    // const newToDos = Object.assign({}, toDos, {
-    //   [Date.now()]: { text, work: working },
-    // });
     const newToDos = { ...toDos, [Date.now()]: { text, working, isCompleted } };
     setToDos(newToDos);
     await saveTodos(newToDos);
@@ -166,20 +163,22 @@ export default function App() {
                 >
                   {toDos[key].text}
                 </Text>
-                <TouchableOpacity onPress={() => doneTodos(key)}>
-                  <Text>✅</Text>
-                </TouchableOpacity>
-                <TextModal
-                  open={open}
-                  toDos={toDos}
-                  setToDos={setToDos}
-                  saveTodos={saveTodos}
-                  loadTodos={loadTodos}
-                  itKey={key}
-                />
-                <TouchableOpacity onPress={() => delTodos(key)}>
-                  <Text>❌</Text>
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row' }}>
+                  <TouchableOpacity onPress={() => doneTodos(key)}>
+                    <Text>✅</Text>
+                  </TouchableOpacity>
+                  <TextModal
+                    open={open}
+                    toDos={toDos}
+                    setToDos={setToDos}
+                    saveTodos={saveTodos}
+                    loadTodos={loadTodos}
+                    itKey={key}
+                  />
+                  <TouchableOpacity onPress={() => delTodos(key)}>
+                    <Text>❌</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ) : null
           )}

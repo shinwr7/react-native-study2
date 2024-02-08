@@ -36,6 +36,7 @@ export default function App() {
     loadTodos();
     loadLastView();
   }, []);
+
   const onChangeText = (payload) => setText(payload);
   const travel = () => {
     setWorking(false);
@@ -47,8 +48,8 @@ export default function App() {
   };
 
   const loadLastView = async () => {
-    const view = JSON.parse(await AsyncStorage.getItem('lastView'));
-    setWorking(view);
+    const s = await AsyncStorage.getItem('lastView');
+    if (s !== null) setWorking(JSON.parse(s));
   };
 
   const saveLastView = async (bool) => {
@@ -151,7 +152,7 @@ export default function App() {
           onChangeText={onChangeText}
         ></TextInput>
         <ScrollView>
-          {Object.keys(toDos).map((key) =>
+          {Object.keys(toDos || []).map((key) =>
             toDos[key].working === working ? (
               <View style={styles.toDo} key={key}>
                 <Text
